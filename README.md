@@ -1,7 +1,7 @@
-# Zazu VS Code Extension
+# Zazu AI Assistant Extension
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
-![Version](https://img.shields.io/badge/version-0.1.0-green.svg)
+![Version](https://img.shields.io/badge/version-0.1.1-green.svg)
 ![VS Code](https://img.shields.io/badge/VS%20Code-^1.74.0-blue.svg)
 
 A VS Code extension that completely automates the setup of the **Zazu AI Assistant** project, including dependency verification, repository cloning, JIRA configuration, and automatic diagnostics.
@@ -29,8 +29,8 @@ This extension is optimized to work with the [Zazu AI Assistant](https://github.
 
 | Mode | Description | Ideal for |
 |------|-------------|------------|
-| `current-folder` | Clone in current directory | Existing projects |
-| `subfolder` | Create `zazu-ai-assistant` subfolder | **Recommended** |
+| `current-folder` | Clone in current directory | **Default - Recommended** |
+| `subfolder` | Create `zazu-ai-assistant` subfolder | Existing projects |
 | `custom-path` | Custom path | Specific locations |
 
 ## 🚀 Quick Usage
@@ -38,7 +38,7 @@ This extension is optimized to work with the [Zazu AI Assistant](https://github.
 ### 1️⃣ Installation
 ```bash
 # Install from VSIX file
-code --install-extension zazu-project-setup-0.1.0.vsix
+code --install-extension zazu-ai-assistant-0.1.1.vsix
 ```
 
 ### 2️⃣ Visual Configuration
@@ -69,7 +69,7 @@ code --install-extension zazu-project-setup-0.1.0.vsix
 ```json
 {
   "zazu.repositoryUrl": "https://github.com/carlosmedinainditex/zazu-ai-assistant.git",
-  "zazu.cloneMode": "subfolder",
+  "zazu.cloneMode": "current-folder",
   "zazu.projectPath": "${workspaceFolder}"
 }
 ```
@@ -137,7 +137,7 @@ graph TD
 ## 📦 Final Structure
 
 ```
-zazu-vsc-plugin/
+zazu-ai-assistant-extension/
 ├── src/extension.ts              # Main code (single file)
 ├── out/extension.js              # Compiled (169.5kb)
 ├── package.json                  # Essential configuration

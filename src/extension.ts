@@ -344,7 +344,7 @@ DEFAULT_JQL=${config.env.defaultJql}
 
 function getConfig(): ZazuConfig {
   const config = vscode.workspace.getConfiguration('zazu');
-  const cloneMode = config.get('cloneMode', 'subfolder') as 'current-folder' | 'subfolder' | 'custom-path';
+  const cloneMode = config.get('cloneMode', 'current-folder') as 'current-folder' | 'subfolder' | 'custom-path';
   
   // Resolve project path based on cloning mode
   let projectPath: string;
