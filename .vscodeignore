@@ -1,0 +1,8 @@
+src/**/*.ts
+**/.env
+node_modules/**/*.ts
+*.vsix
+.eslintrc.js
+.gitignore
+tsconfig.json
+package-lock.json
