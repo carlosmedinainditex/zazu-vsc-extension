@@ -163,18 +163,6 @@ npm run lint        # Verify code
 npm run package     # Create extension
 ```
 
-### Debug in VS Code
-1. **F5** or "Run Extension"
-2. New window with extension loaded
-3. Test functionalities
-
-## 🔒 Security and Privacy
-
-- ✅ **Does not store credentials** in source code
-- ✅ **Secure configuration** through VS Code Settings
-- ✅ **Only accesses** configured project files
-- ✅ **MIT License** - Open source
-
 ## 🐛 Troubleshooting
 
 ### "Z" doesn't appear in status bar
@@ -188,21 +176,5 @@ npm run package     # Create extension
 ### Cloning error
 - Verify `repositoryUrl` and `projectPath` configuration
 - Check GitHub connectivity
-
-## 🤝 Contributing
-
-1. **Fork** the repository
-2. **Create branch**: `git checkout -b feature/new-functionality`
-3. **Commit**: `git commit -am 'New functionality'`
-4. **Push**: `git push origin feature/new-functionality`
-5. **Pull Request**
-
-## 📄 License
-
-MIT License - Copyright (c) 2025 Carlos Medina
-
-## 🎉 Enjoy your automated Zazu setup!
-
----
 
 **Problems?** Open an issue with error details, VS Code version and operating system.
