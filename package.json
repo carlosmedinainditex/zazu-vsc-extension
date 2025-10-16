@@ -16,6 +16,11 @@
   "engines": {
     "vscode": "^1.74.0"
   },
+  "icon": "images/zazu-logo.png",
+  "galleryBanner": {
+    "color": "#1e1e1e",
+    "theme": "dark"
+  },
   "categories": [
     "Other"
   ],
