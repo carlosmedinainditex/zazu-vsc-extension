@@ -1,9 +1,9 @@
 {
-  "name": "zazu-project-setup",
-  "displayName": "Zazu Project Setup",
-  "description": "Automates Zazu project setup with dependency checking, repo cloning, .env configuration, and testing",
-  "version": "0.1.0",
-  "publisher": "zazu-developer",
+  "name": "zazu-ai-assistant",
+  "displayName": "Zazu AI Assistant",
+  "description": "Automates Zazu AI Assistant project setup with dependency checking, repo cloning, .env configuration, and testing",
+  "version": "0.1.1",
+  "publisher": "carlos-medina",
   "author": {
     "name": "Carlos Medina",
     "email": "carlos.medina@inditex.com"
@@ -63,7 +63,7 @@
       }
     ],
     "configuration": {
-      "title": "Zazu Project Setup",
+      "title": "Zazu AI Assistant",
       "properties": {
         "zazu.repositoryUrl": {
           "type": "string",
@@ -83,7 +83,7 @@
             "Create a 'zazu-ai-assistant' subfolder in the workspace",
             "Use the custom path specified in projectPath"
           ],
-          "default": "subfolder",
+          "default": "current-folder",
           "description": "Repository cloning mode"
         },
         "zazu.env.jiraServer": {
@@ -150,7 +150,7 @@
     "watch": "npm run compile -- --watch",
     "lint": "eslint src --ext ts",
     "package": "npx vsce package",
-    "install-extension": "npm run package && code --install-extension zazu-project-setup-0.1.0.vsix"
+    "install-extension": "npm run package && code --install-extension zazu-ai-assistant-0.1.1.vsix"
   },
   "devDependencies": {
     "@types/node": "18.x",
