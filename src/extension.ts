@@ -56,24 +56,15 @@ export function activate(context: vscode.ExtensionContext) {
 
   commands.forEach(command => context.subscriptions.push(command));
 
-  // Commented out auto-setup
-  // const config = getConfig();
-  // if (config.autoSetup) {
-  //   vscode.window.showInformationMessage(
-  //     'Zazu Project Setup is ready. Do you want to run automatic setup?',
-  //     'Yes', 'No'
-  //   ).then((selection: string | undefined) => {
-  //     if (selection === 'Yes') {
-  //       setupProject();
-  //     }
-  //   });
-  // }
-
-  // Check initial status if there's a configured project (only if extension activates)
-  // const config = getConfig();
-  // if (config.projectPath && fs.existsSync(config.projectPath)) {
-  //   runDiagnosis(true); // Silent mode
-  // }
+  // Check initial status when extension activates
+  const config = getConfig();
+  if (config.projectPath && fs.existsSync(config.projectPath)) {
+    // If project exists, run a silent diagnosis to update status
+    runDiagnosis(true);
+  } else {
+    // If no project, set initial status
+    updateStatus('unknown', 'Zazu not configured');
+  }
 }
 
 async function setupProject() {
