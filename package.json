@@ -1,0 +1,169 @@
+{
+  "name": "zazu-project-setup",
+  "displayName": "Zazu Project Setup",
+  "description": "Automates Zazu project setup with dependency checking, repo cloning, .env configuration, and testing",
+  "version": "0.1.0",
+  "publisher": "zazu-developer",
+  "author": {
+    "name": "Carlos Medina",
+    "email": "carlos.medina@inditex.com"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/carlosmedinainditex/zazu-jira-api-connector"
+  },
+  "engines": {
+    "vscode": "^1.74.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onCommand:zazu.setupProject",
+    "onCommand:zazu.showStatusMenu"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "zazu.setupProject",
+        "title": "Setup Zazu Project",
+        "category": "Zazu"
+      },
+      {
+        "command": "zazu.checkDependencies",
+        "title": "Check Dependencies",
+        "category": "Zazu"
+      },
+      {
+        "command": "zazu.cloneRepository",
+        "title": "Clone Repository",
+        "category": "Zazu"
+      },
+      {
+        "command": "zazu.configureEnv",
+        "title": "Configure Environment",
+        "category": "Zazu"
+      },
+      {
+        "command": "zazu.runDiagnosis",
+        "title": "Run Diagnosis",
+        "category": "Zazu"
+      },
+      {
+        "command": "zazu.showStatusMenu",
+        "title": "Show Status Menu",
+        "category": "Zazu"
+      },
+      {
+        "command": "zazu.openSettings",
+        "title": "Open Settings",
+        "category": "Zazu"
+      }
+    ],
+    "configuration": {
+      "title": "Zazu Project Setup",
+      "properties": {
+        "zazu.repositoryUrl": {
+          "type": "string",
+          "default": "https://github.com/carlosmedinainditex/zazu-ai-assistant.git",
+          "description": "Zazu AI Assistant repository URL"
+        },
+        "zazu.projectPath": {
+          "type": "string",
+          "default": "${workspaceFolder}",
+          "description": "Path where to clone the Zazu project. Use ${workspaceFolder} for current directory, ${workspaceFolder}/zazu-ai-assistant to create a subfolder, or a custom absolute path"
+        },
+        "zazu.cloneMode": {
+          "type": "string",
+          "enum": ["current-folder", "subfolder", "custom-path"],
+          "enumDescriptions": [
+            "Clone directly in the current workspace directory",
+            "Create a 'zazu-ai-assistant' subfolder in the workspace",
+            "Use the custom path specified in projectPath"
+          ],
+          "default": "subfolder",
+          "description": "Repository cloning mode"
+        },
+        "zazu.env.jiraServer": {
+          "type": "string",
+          "default": "https://jira.inditex.com/jira",
+          "description": "JIRA server URL"
+        },
+        "zazu.env.jiraUser": {
+          "type": "string",
+          "default": "",
+          "description": "JIRA user"
+        },
+        "zazu.env.jiraToken": {
+          "type": "string",
+          "default": "",
+          "description": "JIRA access token (Bearer Token)"
+        },
+        "zazu.env.maxResults": {
+          "type": "number",
+          "default": 50,
+          "description": "Maximum number of results per request"
+        },
+        "zazu.env.defaultJql": {
+          "type": "string",
+          "default": "project in (IOPCOMPRAS, IOPSOFT) AND issuetype = \"Initiative\" ORDER BY updated DESC",
+          "description": "Default JQL query"
+        },
+        "zazu.autoSetup": {
+          "type": "boolean",
+          "default": false,
+          "description": "Run automatic setup on install (disabled by default)"
+        }
+      }
+    },
+    "menus": {
+      "commandPalette": [
+        {
+          "command": "zazu.setupProject"
+        },
+        {
+          "command": "zazu.checkDependencies"
+        },
+        {
+          "command": "zazu.cloneRepository"
+        },
+        {
+          "command": "zazu.configureEnv"
+        },
+        {
+          "command": "zazu.runDiagnosis"
+        },
+        {
+          "command": "zazu.showStatusMenu"
+        },
+        {
+          "command": "zazu.openSettings"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "esbuild src/extension.ts --bundle --outfile=out/extension.js --external:vscode --format=cjs --platform=node",
+    "watch": "npm run compile -- --watch",
+    "lint": "eslint src --ext ts",
+    "package": "npx vsce package",
+    "install-extension": "npm run package && code --install-extension zazu-project-setup-0.1.0.vsix"
+  },
+  "devDependencies": {
+    "@types/node": "18.x",
+    "@types/vscode": "^1.74.0",
+    "@typescript-eslint/eslint-plugin": "^6.9.0",
+    "@typescript-eslint/parser": "^6.9.0",
+    "@vscode/vsce": "^3.6.2",
+    "esbuild": "^0.19.5",
+    "eslint": "^8.52.0",
+    "typescript": "^5.2.2"
+  },
+  "dependencies": {
+    "node-fetch": "^3.3.2",
+    "simple-git": "^3.20.0"
+  }
+}
