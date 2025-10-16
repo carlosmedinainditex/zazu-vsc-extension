@@ -13,6 +13,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - 👤 **Publisher**: Updated from `zazu-developer` to `carlos-medina` for proper attribution
 - 🏷️ **Extension name**: Changed from "Zazu Project Setup" to "Zazu AI Assistant" for better branding
 
+### 🚀 Improved
+- 📊 **Status bar**: Now appears immediately when VS Code starts (using `onStartupFinished` activation)
+- 🔄 **Initial status**: Automatically checks project status on extension activation
+
+### 🎨 Added
+- 🖼️ **Extension icon**: Added ZAZU logo as extension icon for better visual identification
+- 🎨 **Gallery banner**: Configured dark theme banner for VS Code marketplace
+
 ## [0.1.0] - 2025-10-17
 
 ### 🎉 Added
