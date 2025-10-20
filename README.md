@@ -1,7 +1,7 @@
 # Zazu AI Assistant Extension
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
-![Version](https://img.shields.io/badge/version-0.1.1-green.svg)
+![Version](https://img.shields.io/badge/version-0.3.0-green.svg)
 ![VS Code](https://img.shields.io/badge/VS%20Code-^1.74.0-blue.svg)
 
 A simplified VS Code extension that automates the setup of the **Zazu AI Assistant** project.
@@ -32,7 +32,7 @@ This extension simplifies the setup of the [Zazu AI Assistant](https://github.co
 
 ### 1️⃣ Installation
 ```bash
-code --install-extension zazu-ai-assistant-0.1.1.vsix
+code --install-extension zazu-ai-assistant-0.3.0.vsix
 ```
 
 ### 2️⃣ Configuration
@@ -68,15 +68,30 @@ code --install-extension zazu-ai-assistant-0.1.1.vsix
 
 ## 🎮 Status Menu
 
+The status menu shows different states based on your project configuration:
+
 ```
-Status: ✅ Project ready
+Status: ✅ Project found and settings configured
+---
 🚀 Complete Setup
-🩺 Run Diagnosis
-─────────────────
+📋 Diagnosis Report
+---
 ⚙️ Settings
-─────────────────
+---
 ❌ Close
 ```
+
+### 📊 Possible Status States
+
+| Icon | Status | Description |
+|------|--------|-------------|
+| ✅ | **Project ready** | All configured and working |
+| 🔥 | **Connection failed** | JIRA connection issues |
+| ❌ | **Not configured** | No project found - run setup |
+| ⚠️ | **Incomplete** | Project missing files/config |
+| 🔨 | **Missing dependencies** | System requirements not met |
+| 🔧 | **Missing credentials** | JIRA user/token not configured |
+| ❓ | **Unknown** | Status needs verification |
 
 ## 🔄 Workflow
 
@@ -88,11 +103,29 @@ Configure JIRA credentials → Click "Z" → Complete Setup → Project Ready
 
 ```
 zazu-vsc-extension/
-├── src/extension.ts     # Main code (simplified)
-├── out/extension.js     # Compiled (164kb)
-├── package.json         # Essential config
-└── README.md           # This file
+├── src/                          # Source code (modular architecture)
+│   ├── extension.ts             # Main extension entry point
+│   ├── types.ts                 # TypeScript interfaces & constants
+│   ├── config.ts                # Configuration management
+│   ├── system-utils.ts          # System operations & dependency checking
+│   ├── project-manager.ts       # Git operations & project setup
+│   └── status-manager.ts        # Status tracking & UI management
+├── out/
+│   └── extension.js             # Compiled bundle (~170kb)
+├── images/
+│   └── zazu-logo.png            # Extension icon
+├── package.json                 # Extension manifest & dependencies
+├── tsconfig.json                # TypeScript configuration
+├── CHANGELOG.md                 # Version history
+└── README.md                    # Documentation
 ```
+
+### 🏗️ Architecture Overview
+
+- **Modular Design**: Clean separation of concerns across 5 specialized modules
+- **Cross-Platform**: Full Windows and Unix/macOS compatibility
+- **Type Safety**: Comprehensive TypeScript interfaces and error handling
+- **Single Bundle**: All modules compiled into one optimized extension.js file
 
 ## 🛠️ Development
 
@@ -102,8 +135,39 @@ npm run watch       # Development mode
 npm run package     # Create extension
 ```
 
+## 🌍 Cross-Platform Support
+
+This extension works on **Windows**, **macOS**, and **Linux**:
+
+- **Windows**: Uses `python` and `pip` commands
+- **Unix/macOS**: Uses `python3` and `pip3` commands  
+- **Automatic detection**: Detects your OS and uses appropriate commands
+- **Fallback support**: Tries alternative commands if primary ones fail
+
+## ⚡ System Requirements
+
+### Required Dependencies
+- **Git**: For repository cloning
+- **Python**: Version 3.7+ (`python` on Windows, `python3` on Unix)
+- **Pip**: Python package manager (`pip` on Windows, `pip3` on Unix)
+- **VS Code**: Version 1.74.0 or higher
+
+### Installation Commands
+```bash
+# Windows (using chocolatey)
+choco install git python
+
+# macOS (using homebrew) 
+brew install git python3
+
+# Ubuntu/Debian
+sudo apt-get install git python3 python3-pip
+```
+
 ## 🐛 Troubleshooting
 
-- **"Z" missing**: Execute any Zazu command to activate
-- **Setup fails**: Check repository URL and JIRA credentials
-- **Dependencies error**: Ensure Python3, pip3, and git are installed
+- **"Z" missing**: Execute any Zazu command to activate extension
+- **Setup fails**: Check repository URL and JIRA credentials in settings
+- **Dependencies error**: Ensure Git and Python are installed and in PATH
+- **Python not found**: Try installing Python 3.7+ and restart VS Code
+- **Permission errors**: Run VS Code as administrator (Windows) or check folder permissions

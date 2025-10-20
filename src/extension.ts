@@ -1,440 +1,128 @@
 import * as vscode from 'vscode';
-import * as fs from 'fs';
-import * as path from 'path';
-import { simpleGit, SimpleGit } from 'simple-git';
-import { spawn } from 'child_process';
+import { ConfigManager } from './config';
+import { StatusManager } from './status-manager';
+import { ProjectManager } from './project-manager';
+import { SystemUtils } from './system-utils';
 
-interface ZazuConfig {
-  repositoryUrl: string;
-  projectPath: string;
-  env: {
-    jiraServer: string;
-    jiraUser: string;
-    jiraToken: string;
-  };
-}
-
-interface ZazuStatus {
-  status: 'unknown' | 'healthy' | 'warning' | 'error';
-  message: string;
-  lastCheck: Date;
-}
-
-let statusBarItem: vscode.StatusBarItem;
-let zazuStatus: ZazuStatus = {
-  status: 'unknown',
-  message: 'Zazu not initialized',
-  lastCheck: new Date()
-};
-
+/**
+ * Extension activation point
+ */
 export function activate(context: vscode.ExtensionContext) {
   console.log('Zazu Project Setup extension is now active!');
 
-  // Crear status bar item
-  statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
-  statusBarItem.command = 'zazu.showStatusMenu';
-  context.subscriptions.push(statusBarItem);
-  
-  // Inicializar status bar
-  updateStatusBar();
+  // Initialize status manager
+  const statusManager = StatusManager.getInstance();
+  statusManager.initialize(context);
 
-  // Registrar comandos
+  // Register commands
   const commands = [
-    vscode.commands.registerCommand('zazu.setupProject', setupProject),
-    vscode.commands.registerCommand('zazu.runDiagnosis', () => runDiagnosis()),
-    vscode.commands.registerCommand('zazu.showStatusMenu', showStatusMenu),
-    vscode.commands.registerCommand('zazu.openSettings', openSettings)
+    vscode.commands.registerCommand('zazu.setupProject', () => setupProject(statusManager)),
+    vscode.commands.registerCommand('zazu.runDiagnosis', () => runDiagnosis(statusManager)),
+    vscode.commands.registerCommand('zazu.showStatusMenu', () => showStatusMenu(statusManager)),
+    vscode.commands.registerCommand('zazu.openSettings', ConfigManager.openSettings)
   ];
 
   commands.forEach(command => context.subscriptions.push(command));
 
   // Initialize status
-  const config = getConfig();
-  if (config.projectPath && fs.existsSync(config.projectPath)) {
-    updateStatus('unknown', 'Project found, run diagnosis');
+  const config = ConfigManager.getConfig();
+  const projectValidation = SystemUtils.validateProjectStructure(config.projectPath);
+  
+  if (projectValidation.exists) {
+    statusManager.updateStatus('unknown', 'Project found, run diagnosis to verify');
   } else {
-    updateStatus('unknown', 'Project not configured');
+    statusManager.updateStatus('unknown', 'Project not configured');
   }
 }
 
-async function setupProject() {
-  const config = getConfig();
+/**
+ * Complete project setup workflow
+ */
+async function setupProject(statusManager: StatusManager): Promise<void> {
+  const config = ConfigManager.getConfig();
   
-  if (!config.repositoryUrl || !config.projectPath) {
+  // Validate basic configuration
+  const validation = ConfigManager.validateConfig(config);
+  if (!validation.valid) {
     vscode.window.showErrorMessage(
-      'Please configure the repository URL and project path in Zazu settings.'
+      `Please configure missing settings: ${validation.missing.join(', ')}`
     );
-    openSettings();
+    ConfigManager.openSettings();
     return;
   }
 
   try {
     vscode.window.showInformationMessage('🔄 Starting Zazu setup...');
+    statusManager.updateStatus('unknown', 'Setup in progress...');
     
-    // 1. Check basic dependencies
-    await checkDependencies();
+    // 1. Check system dependencies
+    const missingDeps = await SystemUtils.checkSystemDependencies();
+    if (missingDeps.length > 0) {
+      throw new Error(`Missing system dependencies: ${missingDeps.join(', ')}`);
+    }
     
     // 2. Clone repository
-    await cloneRepository();
+    await ProjectManager.cloneRepository(config);
     
     // 3. Install Python dependencies
-    await installPythonDependencies();
+    await ProjectManager.installPythonDependencies(config);
     
     // 4. Configure environment
-    await configureEnvironment();
+    await ProjectManager.configureEnvironment(config);
     
-    // 5. Run basic test
-    await runDiagnosis(true);
+    // 5. Run diagnosis test
+    const diagnosisSuccess = await ProjectManager.runDiagnosis(config, true);
     
-    vscode.window.showInformationMessage('✅ Zazu project setup completed!');
-    
-  } catch (error) {
-    updateStatus('error', `Setup failed: ${error}`);
-    vscode.window.showErrorMessage(`Setup failed: ${error}`);
-  }
-}
-
-async function checkDependencies(): Promise<void> {
-  return new Promise((resolve, reject) => {
-    const dependencies = ['python3', 'pip3', 'git'];
-    const results: string[] = [];
-    
-    const checkDep = (dep: string, index: number) => {
-      const process = spawn(dep, ['--version'], { shell: true });
-      
-      process.on('close', (code: any) => {
-        if (code === 0) {
-          results.push(`✅ ${dep} installed`);
-        } else {
-          results.push(`❌ ${dep} not found`);
-        }
-        
-        if (index === dependencies.length - 1) {
-          const missing = results.filter(r => r.includes('❌'));
-          if (missing.length > 0) {
-            vscode.window.showErrorMessage(
-              `Missing dependencies: ${missing.join(', ')}`
-            );
-            updateStatus('error', 'Dependencies missing');
-            reject(new Error('Missing dependencies'));
-          } else {
-            vscode.window.showInformationMessage('All dependencies are installed ✅');
-            updateStatus('healthy', 'Dependencies OK');
-            resolve();
-          }
-        } else {
-          checkDep(dependencies[index + 1], index + 1);
-        }
-      });
-    };
-    
-    checkDep(dependencies[0], 0);
-  });
-}
-
-async function cloneRepository(): Promise<void> {
-  const config = getConfig();
-  
-  if (!config.repositoryUrl || !config.projectPath) {
-    throw new Error('Repository URL or project path not configured');
-  }
-
-  const git: SimpleGit = simpleGit();
-  
-  // Check if directory exists and has content
-  if (fs.existsSync(config.projectPath)) {
-    const gitDir = path.join(config.projectPath, '.git');
-    if (fs.existsSync(gitDir)) {
-      // Already a git repository, try pull
-      try {
-        const gitRepo = simpleGit(config.projectPath);
-        await gitRepo.pull();
-        vscode.window.showInformationMessage('Repository updated from remote');
-        return;
-      } catch (error) {
-        // If pull fails, continue with cloning
-      }
-    }
-    
-    const isEmptyDir = fs.readdirSync(config.projectPath).length === 0;
-    if (!isEmptyDir) {
-      const choice = await vscode.window.showWarningMessage(
-        `Directory ${config.projectPath} is not empty. Overwrite?`,
-        'Yes', 'Cancel'
-      );
-      
-      if (choice !== 'Yes') {
-        throw new Error('Cloning cancelled by user');
-      }
-      
-      // Clear directory
-      fs.rmSync(config.projectPath, { recursive: true, force: true });
-    }
-  }
-  
-  // Create directory if it doesn't exist
-  if (!fs.existsSync(config.projectPath)) {
-    fs.mkdirSync(config.projectPath, { recursive: true });
-  }
-  
-  try {
-    // Clone in temporary directory and move content
-    const tempDir = path.join(require('os').tmpdir(), 'zazu-clone-' + Date.now());
-    await git.clone(config.repositoryUrl, tempDir);
-    
-    // Move content from temporary directory to target directory
-    const items = fs.readdirSync(tempDir);
-    for (const item of items) {
-      const srcPath = path.join(tempDir, item);
-      const destPath = path.join(config.projectPath, item);
-      fs.renameSync(srcPath, destPath);
-    }
-    
-    // Clean up temporary directory
-    fs.rmSync(tempDir, { recursive: true, force: true });
-    
-    vscode.window.showInformationMessage(`Repository cloned at: ${config.projectPath}`);
-  } catch (error) {
-    throw new Error(`Error cloning repository: ${error}`);
-  }
-}
-
-async function installPythonDependencies(): Promise<void> {
-  const config = getConfig();
-  const requirementsPath = path.join(config.projectPath, 'req', 'requirements.txt');
-  
-  if (!fs.existsSync(requirementsPath)) {
-    throw new Error('requirements.txt file not found');
-  }
-
-  return new Promise((resolve, reject) => {
-    const installProcess = spawn('pip3', ['install', '-r', requirementsPath], {
-      cwd: config.projectPath,
-      shell: true
-    });
-    
-    let output = '';
-    
-    installProcess.stdout?.on('data', (data: any) => {
-      output += data.toString();
-    });
-    
-    installProcess.stderr?.on('data', (data: any) => {
-      output += data.toString();
-    });
-    
-    installProcess.on('close', (code: any) => {
-      if (code === 0) {
-        vscode.window.showInformationMessage('Python dependencies installed correctly ✅');
-        resolve();
-      } else {
-        vscode.window.showErrorMessage(`Error installing Python dependencies. Code: ${code}`);
-        // Show output in a new document
-        vscode.workspace.openTextDocument({
-          content: output,
-          language: 'plaintext'
-        }).then((doc: any) => {
-          vscode.window.showTextDocument(doc);
-        });
-        reject(new Error(`Installation failed with code: ${code}`));
-      }
-    });
-  });
-}
-
-async function configureEnvironment(): Promise<void> {
-  const config = getConfig();
-  const envPath = path.join(config.projectPath, 'env', '.env');
-  
-  // Create basic .env content
-  const envContent = `# JIRA API Configuration
-JIRA_SERVER=${config.env.jiraServer}
-JIRA_USER=${config.env.jiraUser}
-JIRA_TOKEN=${config.env.jiraToken}
-`;
-
-  try {
-    // Create env directory if it doesn't exist
-    const envDir = path.dirname(envPath);
-    if (!fs.existsSync(envDir)) {
-      fs.mkdirSync(envDir, { recursive: true });
-    }
-    
-    fs.writeFileSync(envPath, envContent);
-    vscode.window.showInformationMessage('.env file configured');
-  } catch (error) {
-    throw new Error(`Error configuring .env: ${error}`);
-  }
-}
-
-function getConfig(): ZazuConfig {
-  const config = vscode.workspace.getConfiguration('zazu');
-  const workspaceFolder = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
-  
-  let projectPath = config.get('projectPath', '${workspaceFolder}');
-  
-  // Replace ${workspaceFolder} if necessary
-  if (projectPath.includes('${workspaceFolder}')) {
-    if (workspaceFolder) {
-      projectPath = projectPath.replace('${workspaceFolder}', workspaceFolder);
+    if (diagnosisSuccess) {
+      statusManager.updateStatus('healthy', 'Setup completed successfully');
+      vscode.window.showInformationMessage('✅ Zazu project setup completed!');
     } else {
-      projectPath = projectPath.replace('${workspaceFolder}', require('os').homedir());
+      statusManager.updateStatus('warning', 'Setup completed but diagnosis failed');
+      vscode.window.showWarningMessage('⚠️ Setup completed but JIRA connection test failed');
     }
+    
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    statusManager.updateStatus('error', `Setup failed: ${errorMessage}`);
+    vscode.window.showErrorMessage(`Setup failed: ${errorMessage}`);
   }
+}
+
+/**
+ * Run diagnosis and show detailed report
+ */
+async function runDiagnosis(statusManager: StatusManager): Promise<void> {
+  const config = ConfigManager.getConfig();
   
-  return {
-    repositoryUrl: config.get('repositoryUrl', 'https://github.com/carlosmedinainditex/zazu-ai-assistant.git'),
-    projectPath: projectPath,
-    env: {
-      jiraServer: config.get('env.jiraServer', 'https://jira.inditex.com/jira'),
-      jiraUser: config.get('env.jiraUser', ''),
-      jiraToken: config.get('env.jiraToken', '')
+  try {
+    const success = await ProjectManager.runDiagnosis(config, false);
+    
+    if (success) {
+      statusManager.updateStatus('healthy', 'JIRA connection OK');
+    } else {
+      statusManager.updateStatus('error', 'JIRA connection failed');
     }
-  };
-}
-
-async function runDiagnosis(silent: boolean = false): Promise<void> {
-  const config = getConfig();
-  
-  if (!config.projectPath || !fs.existsSync(config.projectPath)) {
-    const message = 'Zazu project not found. Run setup first.';
-    if (!silent) {
-      vscode.window.showErrorMessage(message);
-    }
-    updateStatus('error', message);
-    return;
-  }
-
-  const diagnosticPath = path.join(config.projectPath, 'diagnosis', 'diagnostic.py');
-  
-  if (!fs.existsSync(diagnosticPath)) {
-    const message = 'Diagnostic script not found in project.';
-    if (!silent) {
-      vscode.window.showErrorMessage(message);
-    }
-    updateStatus('error', message);
-    return;
-  }
-
-  if (!silent) {
-    vscode.window.showInformationMessage('Running Zazu diagnosis...');
-  }
-
-  return new Promise((resolve, reject) => {
-    const process = spawn('python3', [diagnosticPath], {
-      cwd: config.projectPath,
-      shell: true
-    });
     
-    let output = '';
-    let errorOutput = '';
+    // Show detailed status after diagnosis
+    statusManager.showDetailedStatus(config);
     
-    process.stdout?.on('data', (data: any) => {
-      output += data.toString();
-    });
-    
-    process.stderr?.on('data', (data: any) => {
-      errorOutput += data.toString();
-    });
-    
-    process.on('close', (code: any) => {
-      if (code === 0) {
-        const message = 'Diagnosis completed successfully ✅';
-        if (!silent) {
-          vscode.window.showInformationMessage(message);
-          // Show output in a new document
-          vscode.workspace.openTextDocument({
-            content: output,
-            language: 'plaintext'
-          }).then((doc: any) => {
-            vscode.window.showTextDocument(doc);
-          });
-        }
-        updateStatus('healthy', 'JIRA connection OK');
-        resolve();
-      } else {
-        const message = `Diagnosis failed. Exit code: ${code}`;
-        if (!silent) {
-          vscode.window.showErrorMessage(message);
-          // Show error in a new document
-          vscode.workspace.openTextDocument({
-            content: `STDOUT:\n${output}\n\nSTDERR:\n${errorOutput}`,
-            language: 'plaintext'
-          }).then((doc: any) => {
-            vscode.window.showTextDocument(doc);
-          });
-        }
-        updateStatus('error', 'JIRA connection failed');
-        reject(new Error(`Diagnosis failed with code: ${code}`));
-      }
-    });
-  });
-}
-
-function updateStatus(status: 'unknown' | 'healthy' | 'warning' | 'error', message: string): void {
-  zazuStatus = {
-    status,
-    message,
-    lastCheck: new Date()
-  };
-  updateStatusBar();
-}
-
-function updateStatusBar(): void {
-  if (!statusBarItem) {
-    return;
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    statusManager.updateStatus('error', errorMessage);
   }
-  
-  const colors = {
-    unknown: undefined,
-    healthy: undefined,
-    warning: new vscode.ThemeColor('statusBarItem.warningBackground'),
-    error: new vscode.ThemeColor('statusBarItem.errorBackground')
-  };
-  
-  statusBarItem.text = `Z`;
-  statusBarItem.backgroundColor = colors[zazuStatus.status];
-  statusBarItem.tooltip = `Zazu Status: ${zazuStatus.message}\nLast check: ${zazuStatus.lastCheck.toLocaleTimeString()}\n\nClick for options...`;
-  statusBarItem.show();
 }
 
-function showStatus(): void {
-  const statusText = `Zazu Status: ${zazuStatus.status.toUpperCase()}
-Message: ${zazuStatus.message}
-Last Check: ${zazuStatus.lastCheck.toLocaleString()}
-
-Project Path: ${getConfig().projectPath || 'Not configured'}
-Repository: ${getConfig().repositoryUrl}
-JIRA Server: ${getConfig().env.jiraServer}`;
-
-  vscode.window.showInformationMessage(statusText, { modal: true });
-}
-
-async function showStatusMenu(): Promise<void> {
-  const config = getConfig();
+/**
+ * Show status menu with current project state
+ */
+async function showStatusMenu(statusManager: StatusManager): Promise<void> {
+  const config = ConfigManager.getConfig();
   
-  // Determine project status
-  const projectExists = config.projectPath && fs.existsSync(config.projectPath);
-  
-  let statusIcon: string;
-  let statusText: string;
-  
-  if (!projectExists) {
-    statusIcon = '❌';
-    statusText = 'No project configured - Use Complete Setup';
-  } else if (zazuStatus.status === 'healthy') {
-    statusIcon = '✅';
-    statusText = 'Project ready and working';
-  } else if (zazuStatus.status === 'error') {
-    statusIcon = '🔥';
-    statusText = 'Setup failed - Check Settings';
-  } else {
-    statusIcon = '⚠️';
-    statusText = 'Project status unknown - Run Diagnosis Report to verify';
-  }
+  // Determine current project status
+  const status = await statusManager.determineProjectStatus(config);
   
   const options = [
-    `Status: ${statusIcon} ${statusText}`,
+    `Status: ${status.icon} ${status.text}`,
     '---',
     '🚀 Complete Setup',
     '📋 Diagnosis Report',
@@ -459,25 +147,21 @@ async function showStatusMenu(): Promise<void> {
   
   switch (selection) {
     case '🚀 Complete Setup':
-      setupProject();
+      await setupProject(statusManager);
       break;
     case '📋 Diagnosis Report':
-      await runDiagnosis();
-      showStatus();
+      await runDiagnosis(statusManager);
       break;
     case '⚙️ Settings':
-      openSettings();
+      ConfigManager.openSettings();
       break;
   }
 }
 
-function openSettings(): void {
-  vscode.commands.executeCommand('workbench.action.openSettings', 'zazu');
-}
-
-export function deactivate() {
-  if (statusBarItem) {
-    statusBarItem.dispose();
-  }
+/**
+ * Extension deactivation
+ */
+export function deactivate(): void {
+  StatusManager.getInstance().dispose();
   console.log('Zazu Project Setup extension deactivated');
 }

@@ -4,6 +4,61 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - 2025-10-20
+
+### 🔧 Cross-Platform Compatibility & Code Optimization
+
+#### Added
+- **Cross-platform support**: Full Windows and Unix compatibility for all commands
+- **Smart Python detection**: Automatically uses `python` on Windows and `python3` on Unix
+- **Enhanced dependency checking**: Platform-aware command validation
+- **Robust file operations**: Cross-platform file copying and directory management
+
+#### Improved
+- **Command execution**: Better error handling and timeout management
+- **System utilities**: Platform-specific command detection and execution
+- **Project management**: Cross-platform git operations and Python package installation
+- **Performance**: Optimized dependency checking with proper timeout handling
+
+#### Removed
+- **Unused dependencies**: Removed `node-fetch` dependency (not used)
+- **Temporary files**: Cleaned up development artifacts and backup files
+
+#### Fixed
+- **TypeScript errors**: Resolved all compilation issues with proper type annotations
+- **Memory leaks**: Better process management and cleanup
+- **Platform detection**: Proper OS detection for Windows/Unix command differences
+
+## [0.2.1] - 2025-10-20
+
+### 🎨 UI/UX Improvements
+
+#### Changed
+- **Status menu layout**: Added separator line between status and action options for better visual organization
+- **Status messages**: Made status texts more descriptive and actionable:
+  - ❌ `No project configured - Use Complete Setup`
+  - ✅ `Project ready and working`
+  - 🔥 `Setup failed - Check configuration`
+  - ⚠️ `Project found - Use Diagnosis Report to verify`
+- **Menu option naming**: Changed `🩺 Run Diagnosis` to `📋 Diagnosis Report` for clarity
+
+#### Improved
+- **User guidance**: Status messages now explicitly reference which menu option to use
+- **Visual separation**: Clear sections in dropdown menu for better usability
+- **Emoji consistency**: Fixed corrupted emoji character and improved visibility
+
+### 📋 Menu Structure
+```
+Status: [icon] [descriptive message]
+─────────────────────────────────
+🚀 Complete Setup
+📋 Diagnosis Report
+─────────────────────────────────
+⚙️ Settings
+─────────────────────────────────
+❌ Close
+```
+
 ## [0.2.0] - 2025-10-20
 
 ### 🚀 Major Simplification
