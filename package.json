@@ -2,7 +2,7 @@
   "name": "zazu-ai-assistant",
   "displayName": "Zazu AI Assistant",
   "description": "Automates Zazu AI Assistant project setup with dependency checking, repo cloning, .env configuration, and testing",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "publisher": "carlos-medina",
   "author": {
     "name": "Carlos Medina",
@@ -32,22 +32,7 @@
     "commands": [
       {
         "command": "zazu.setupProject",
-        "title": "Setup Zazu Project",
-        "category": "Zazu"
-      },
-      {
-        "command": "zazu.checkDependencies",
-        "title": "Check Dependencies",
-        "category": "Zazu"
-      },
-      {
-        "command": "zazu.cloneRepository",
-        "title": "Clone Repository",
-        "category": "Zazu"
-      },
-      {
-        "command": "zazu.configureEnv",
-        "title": "Configure Environment",
+        "title": "Setup Project",
         "category": "Zazu"
       },
       {
@@ -77,18 +62,7 @@
         "zazu.projectPath": {
           "type": "string",
           "default": "${workspaceFolder}",
-          "description": "Path where to clone the Zazu project. Use ${workspaceFolder} for current directory, ${workspaceFolder}/zazu-ai-assistant to create a subfolder, or a custom absolute path"
-        },
-        "zazu.cloneMode": {
-          "type": "string",
-          "enum": ["current-folder", "subfolder", "custom-path"],
-          "enumDescriptions": [
-            "Clone directly in the current workspace directory",
-            "Create a 'zazu-ai-assistant' subfolder in the workspace",
-            "Use the custom path specified in projectPath"
-          ],
-          "default": "current-folder",
-          "description": "Repository cloning mode"
+          "description": "Path where to clone the Zazu project"
         },
         "zazu.env.jiraServer": {
           "type": "string",
@@ -103,22 +77,7 @@
         "zazu.env.jiraToken": {
           "type": "string",
           "default": "",
-          "description": "JIRA access token (Bearer Token)"
-        },
-        "zazu.env.maxResults": {
-          "type": "number",
-          "default": 50,
-          "description": "Maximum number of results per request"
-        },
-        "zazu.env.defaultJql": {
-          "type": "string",
-          "default": "project in (IOPCOMPRAS, IOPSOFT) AND issuetype = \"Initiative\" ORDER BY updated DESC",
-          "description": "Default JQL query"
-        },
-        "zazu.autoSetup": {
-          "type": "boolean",
-          "default": false,
-          "description": "Run automatic setup on install (disabled by default)"
+          "description": "JIRA access token"
         }
       }
     },
@@ -126,15 +85,6 @@
       "commandPalette": [
         {
           "command": "zazu.setupProject"
-        },
-        {
-          "command": "zazu.checkDependencies"
-        },
-        {
-          "command": "zazu.cloneRepository"
-        },
-        {
-          "command": "zazu.configureEnv"
         },
         {
           "command": "zazu.runDiagnosis"
