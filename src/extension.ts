@@ -430,7 +430,7 @@ async function showStatusMenu(): Promise<void> {
     statusText = 'Setup failed - Check Settings';
   } else {
     statusIcon = '⚠️';
-    statusText = 'Project found - Use Diagnosis Report to verify';
+    statusText = 'Project status unknown - Run Diagnosis Report to verify';
   }
   
   const options = [
