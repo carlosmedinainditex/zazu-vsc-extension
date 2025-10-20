@@ -64,13 +64,22 @@ export class ProjectManager {
         const srcPath = path.join(tempDir, item);
         const destPath = path.join(config.projectPath, item);
         
-        // Use cross-platform file operations
-        if (fs.statSync(srcPath).isDirectory()) {
-          fs.cpSync(srcPath, destPath, { recursive: true });
-          fs.rmSync(srcPath, { recursive: true, force: true });
-        } else {
-          fs.copyFileSync(srcPath, destPath);
-          fs.unlinkSync(srcPath);
+        // Try atomic move first, fallback to copy/delete with error handling
+        try {
+          fs.renameSync(srcPath, destPath);
+        } catch (err) {
+          try {
+            if (fs.statSync(srcPath).isDirectory()) {
+              fs.cpSync(srcPath, destPath, { recursive: true });
+              fs.rmSync(srcPath, { recursive: true, force: true });
+            } else {
+              fs.copyFileSync(srcPath, destPath);
+              fs.unlinkSync(srcPath);
+            }
+          } catch (moveErr) {
+            vscode.window.showErrorMessage(`Failed to move ${srcPath} to ${destPath}: ${moveErr}`);
+            throw moveErr;
+          }
         }
       }
       
