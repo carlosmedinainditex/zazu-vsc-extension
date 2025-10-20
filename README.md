@@ -107,4 +107,3 @@ npm run package     # Create extension
 - **"Z" missing**: Execute any Zazu command to activate
 - **Setup fails**: Check repository URL and JIRA credentials
 - **Dependencies error**: Ensure Python3, pip3, and git are installed
-
