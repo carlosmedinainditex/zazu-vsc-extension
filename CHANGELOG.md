@@ -6,7 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [0.3.0] - 2025-10-20
 
-### � Cross-Platform Compatibility & Code Optimization
+### 🔧 Cross-Platform Compatibility & Code Optimization
 
 #### Added
 - **Cross-platform support**: Full Windows and Unix compatibility for all commands
