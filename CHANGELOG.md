@@ -4,6 +4,38 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0] - 2025-10-20
+
+### 🚀 Major Simplification
+
+#### Changed
+- **Simplified menu**: Added "Status:" prefix to status line, reorganized options, separated settings
+- **Streamlined commands**: Removed unnecessary commands, kept only essential ones
+- **Unified cloning**: Removed complex multi-mode cloning, simplified to single workspace cloning
+- **Essential setup**: Focuses only on clone → install deps → basic test
+
+#### Removed
+- Multiple cloning modes (current-folder, subfolder, custom-path)
+- GitHub Copilot instructions auto-setup
+- Excessive dependency checks
+- Unnecessary JIRA configuration options (maxResults, defaultJql)
+- Individual commands (checkDependencies, cloneRepository, configureEnv)
+- Complex status reporting and detailed diagnostics
+
+#### Improved
+- **Menu structure**: "Status: [icon] [message]" → "Complete Setup" → "Run Diagnosis" → "Settings"
+- **Code size**: Reduced from 169.5kb to 164.2kb
+- **Setup flow**: Clone remote project → Install dependencies → Run basic tests
+- **Configuration**: Only essential settings for URL, path, and JIRA credentials
+
+### 🎯 Focus
+Now the extension does exactly what's needed:
+1. Clone the Zazu project
+2. Install required dependencies  
+3. Run necessary tests to start working
+
+No over-engineering, no unnecessary features, no excessive validations.
+
 ## [0.1.1] - 2025-10-17
 
 ### 🔧 Changed

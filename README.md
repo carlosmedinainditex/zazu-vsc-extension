@@ -4,177 +4,106 @@
 ![Version](https://img.shields.io/badge/version-0.1.1-green.svg)
 ![VS Code](https://img.shields.io/badge/VS%20Code-^1.74.0-blue.svg)
 
-A VS Code extension that completely automates the setup of the **Zazu AI Assistant** project, including dependency verification, repository cloning, JIRA configuration, and automatic diagnostics.
+A simplified VS Code extension that automates the setup of the **Zazu AI Assistant** project.
 
-## 🎯 Specifically designed for Zazu AI Assistant
+## 🎯 Purpose
 
-This extension is optimized to work with the [Zazu AI Assistant](https://github.com/carlosmedinainditex/zazu-ai-assistant) project, an AI assistant for Inditex JIRA queries.
+This extension simplifies the setup of the [Zazu AI Assistant](https://github.com/carlosmedinainditex/zazu-ai-assistant) project by:
 
-## ✨ Main Features
+1. **Cloning** the remote repository
+2. **Installing** Python dependencies 
+3. **Running** basic tests to verify setup
 
-### 🎮 Smart Context Menu
-- **"Z" icon** in the status bar with context menu
-- **Dynamic visual status**: ✅ OK, ⚠️ Warning, 🔥 Error, 🔄 Unknown
-- **Quick access** to all main functions
+## ✨ Features
 
-### 🔧 Complete Automatic Setup
-- ✅ **Dependency verification** (Python3, pip3, git)
-- ✅ **Smart cloning** with 3 location modes
-- ✅ **Automatic installation** of Python dependencies
-- ✅ **JIRA configuration** with visual interface
-- ✅ **Automatic configuration** of GitHub Copilot instructions
-- ✅ **JIRA connection diagnostics** in real time
+### 🎮 Simple Status Menu
+- **"Z" icon** in status bar with quick menu
+- **Visual status**: ✅ Ready, 🔥 Error, 🔄 Unknown
+- **Easy access** to main functions
 
-### 📁 Flexible Cloning Modes
-
-| Mode | Description | Ideal for |
-|------|-------------|------------|
-| `current-folder` | Clone in current directory | **Default - Recommended** |
-| `subfolder` | Create `zazu-ai-assistant` subfolder | Existing projects |
-| `custom-path` | Custom path | Specific locations |
+### 🔧 Automated Setup
+- ✅ **Dependency check** (Python3, pip3, git)
+- ✅ **Repository cloning** to workspace
+- ✅ **Python dependency installation**
+- ✅ **JIRA environment configuration**
+- ✅ **Basic connection test**
 
 ## 🚀 Quick Usage
 
 ### 1️⃣ Installation
 ```bash
-# Install from VSIX file
 code --install-extension zazu-ai-assistant-0.1.1.vsix
 ```
 
-### 2️⃣ Visual Configuration
+### 2️⃣ Configuration
 1. **Cmd/Ctrl + ,** → Search "Zazu"
-2. **Configure JIRA**: Server, User, Token
-3. **Select cloning mode**
+2. **Configure**: Repository URL, Project Path, JIRA credentials
 
-### 3️⃣ Automatic Setup
-- **Click on "Z"** in the status bar
+### 3️⃣ Setup
+- **Click "Z"** in status bar
 - **Select "🚀 Complete Setup"**
 - Ready! 🎉
 
-## 📋 Available Commands
+## 📋 Commands
 
-| Command | Description | Shortcut |
-|---------|-------------|----------|
-| `Zazu: Setup Project` | Complete automatic setup | Cmd+Shift+P |
-| `Zazu: Check Dependencies` | Verify system dependencies | - |
-| `Zazu: Clone Repository` | Clone repository | - |
-| `Zazu: Configure Environment` | Configure JIRA variables | - |
-| `Zazu: Run Diagnosis` | Test JIRA connection | - |
-| `Zazu: Show Status Menu` | Context menu | Click on "Z" |
-| `Zazu: Open Settings` | Open configuration | - |
+| Command | Description |
+|---------|-------------|
+| `Zazu: Setup Project` | Complete automated setup |
+| `Zazu: Run Diagnosis` | Test JIRA connection |
+| `Zazu: Show Status Menu` | Open main menu |
+| `Zazu: Open Settings` | Open configuration |
 
 ## ⚙️ Configuration
 
-### 📁 Project Configuration
+### Required Settings
 ```json
 {
   "zazu.repositoryUrl": "https://github.com/carlosmedinainditex/zazu-ai-assistant.git",
-  "zazu.cloneMode": "current-folder",
-  "zazu.projectPath": "${workspaceFolder}"
-}
-```
-
-### 🔐 JIRA Configuration
-```json
-{
+  "zazu.projectPath": "${workspaceFolder}",
   "zazu.env.jiraServer": "https://jira.inditex.com/jira",
   "zazu.env.jiraUser": "your-username",
-  "zazu.env.jiraToken": "your-bearer-token",
-  "zazu.env.maxResults": 50,
-  "zazu.env.defaultJql": "project in (IOPCOMPRAS, IOPSOFT) AND issuetype = \"Initiative\" ORDER BY updated DESC"
+  "zazu.env.jiraToken": "your-token"
 }
 ```
 
-### 🤖 Automation
-```json
-{
-  "zazu.autoSetup": false  // Disabled by default to not interfere with VS Code
-}
-```
+## 🎮 Status Menu
 
-## 🎨 Visual Interface
-
-### 📊 Status Indicator (Bottom bar)
 ```
-Z  ← Click to open menu
-```
-
-### 🎮 Context Menu
-```
-✅ Everything OK - JIRA connected
-─────────────────────────
-🔧 Open Configuration
-🩺 Run Diagnosis  
-📋 View Detailed Status
+Status: ✅ Project ready
 🚀 Complete Setup
-─────────────────────────
+🩺 Run Diagnosis
+─────────────────
+⚙️ Settings
+─────────────────
 ❌ Close
 ```
 
-## 🧠 GitHub Copilot Auto-Setup
-
-The extension **automatically configures** GitHub Copilot instructions:
+## 🔄 Workflow
 
 ```
-.github/copilot-instructions.md  →  copilot-instructions.md (root)
-.github/prompts/*.md             →  .copilot/*.md
+Configure JIRA credentials → Click "Z" → Complete Setup → Project Ready
 ```
 
-**GitHub Copilot works immediately** with project instructions! 🎯
-
-## 🔄 Optimized Workflow
-
-```mermaid
-graph TD
-    A[Install Extension] --> B[Configure JIRA]
-    B --> C[Click on 'Z']
-    C --> D[Complete Setup]
-    D --> E[Project Ready]
-    E --> F[Automatic Diagnosis]
-    F --> G[Real-time Status]
-```
-
-## 📦 Final Structure
+## 📦 Project Structure
 
 ```
-zazu-ai-assistant-extension/
-├── src/extension.ts              # Main code (single file)
-├── out/extension.js              # Compiled (169.5kb)
-├── package.json                  # Essential configuration
-├── LICENSE                       # MIT License (Carlos Medina)
-├── README.md                     # This documentation
-├── CHANGELOG.md                  # Change history
-└── .vscode/                      # Development configuration
+zazu-vsc-extension/
+├── src/extension.ts     # Main code (simplified)
+├── out/extension.js     # Compiled (164kb)
+├── package.json         # Essential config
+└── README.md           # This file
 ```
 
 ## 🛠️ Development
 
-### System Requirements
-- **Python 3.x** + pip3
-- **git**
-- **Node.js** + npm
-- **VS Code ^1.74.0**
-
-### Development Scripts
 ```bash
 npm run compile     # Compile
 npm run watch       # Development mode
-npm run lint        # Verify code
 npm run package     # Create extension
 ```
 
 ## 🐛 Troubleshooting
 
-### "Z" doesn't appear in status bar
-- Execute any Zazu command to activate the extension
-- Verify that the extension is installed and enabled
-
-### Commands don't appear in Command Palette
-- **Cmd+Shift+P** → Reload Window
-- Verify extension activation
-
-### Cloning error
-- Verify `repositoryUrl` and `projectPath` configuration
-- Check GitHub connectivity
-
-**Problems?** Open an issue with error details, VS Code version and operating system.
+- **"Z" missing**: Execute any Zazu command to activate
+- **Setup fails**: Check repository URL and JIRA credentials
+- **Dependencies error**: Ensure Python3, pip3, and git are installed
