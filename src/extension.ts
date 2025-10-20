@@ -421,22 +421,23 @@ async function showStatusMenu(): Promise<void> {
   
   if (!projectExists) {
     statusIcon = '❌';
-    statusText = 'Project not configured';
+    statusText = 'No project configured - Use Complete Setup';
   } else if (zazuStatus.status === 'healthy') {
     statusIcon = '✅';
-    statusText = 'Project ready';
+    statusText = 'Project ready and working';
   } else if (zazuStatus.status === 'error') {
     statusIcon = '🔥';
-    statusText = 'Setup failed';
+    statusText = 'Setup failed - Check Settings';
   } else {
-    statusIcon = '🔄';
-    statusText = 'Unknown';
+    statusIcon = '⚠️';
+    statusText = 'Project found - Use Diagnosis Report to verify';
   }
   
   const options = [
     `Status: ${statusIcon} ${statusText}`,
-    '� Complete Setup',
-    '🩺 Run Diagnosis',
+    '---',
+    '🚀 Complete Setup',
+    '📋 Diagnosis Report',
     '---',
     '⚙️ Settings',
     '---',
@@ -457,10 +458,10 @@ async function showStatusMenu(): Promise<void> {
   }
   
   switch (selection) {
-    case '� Complete Setup':
+    case '🚀 Complete Setup':
       setupProject();
       break;
-    case '🩺 Run Diagnosis':
+    case '📋 Diagnosis Report':
       await runDiagnosis();
       showStatus();
       break;
