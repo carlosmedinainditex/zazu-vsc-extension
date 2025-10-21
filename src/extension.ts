@@ -58,7 +58,19 @@ async function setupProject(statusManager: StatusManager): Promise<void> {
     // 1. Check system dependencies
     const missingDeps = await SystemUtils.checkSystemDependencies();
     if (missingDeps.length > 0) {
-      throw new Error(`Missing system dependencies: ${missingDeps.join(', ')}`);
+      vscode.window.showWarningMessage(`Missing dependencies detected: ${missingDeps.join(', ')}`);
+      
+      // Try to install missing dependencies
+      const installed = await SystemUtils.installSystemDependencies(missingDeps);
+      if (!installed) {
+        throw new Error(`Failed to install system dependencies. Please install manually: ${missingDeps.join(', ')}`);
+      }
+      
+      // Re-check dependencies after installation
+      const stillMissing = await SystemUtils.checkSystemDependencies();
+      if (stillMissing.length > 0) {
+        throw new Error(`Dependencies still missing after installation: ${stillMissing.join(', ')}`);
+      }
     }
     
     // 2. Clone repository
