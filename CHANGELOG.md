@@ -4,6 +4,72 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.2] - 2025-10-22
+
+### 🧹 Code Refactoring and Cleanup
+
+#### Removed
+- **Unused function `getCommand()`**: Eliminated dead code that was never called
+- **Redundant command fallback logic**: Simplified Python/pip command handling (no more python3→python fallback)
+- **Duplicate dependency checking**: Replaced complex Promise-based implementation with simple async loop
+- **Unused variable `errorMsg`**: Removed from installDependency function
+
+#### Improved
+- **Simplified `checkSystemDependencies()`**: Reduced from 80+ lines to 12 lines using existing `checkCommand()` helper
+- **Cleaner error handling**: Consolidated error messages and removed redundant try-catch blocks
+- **Better code organization**: Eliminated code duplication across project-manager.ts
+- **Reduced bundle size**: From 180.1kb to 177.0kb (-3kb)
+
+#### Technical Details
+- More maintainable codebase with less complexity
+- Consistent cross-platform command handling
+- No functionality changes - purely internal improvements
+
+## [0.4.1] - 2025-10-21
+
+### 🚀 Simplified Automatic Installation with PATH Management
+
+#### Added
+- **Automatic PATH configuration**: Dependencies are automatically added to system PATH
+- **Restart prompt**: Suggests restarting VS Code on Windows for PATH changes to take full effect
+- **Python with pip**: Ensures pip/pip3 is installed alongside Python on all platforms
+- **Extended installation parameters**:
+  - Windows (winget): Uses `--scope machine` for Python
+  - Windows (chocolatey): Uses `/AddToPath` and `/GitAndUnixToolsOnPath` parameters
+  - Linux: Installs both `python3` and `python3-pip` packages
+  - macOS: Uses `python@3.12` for specific version
+
+#### Changed
+- **Fully automatic installation**: No confirmation dialogs, dependencies are installed automatically when missing
+- **pip3 handling**: Skipped during installation (comes with Python), but verified during checks
+- **PATH update on Windows**: Automatically adds common Git and Python paths to current session
+- **Clearer error messages**: Direct instructions when package managers are not available
+
+#### Improved
+- **Installation workflow**: 
+  1. Detects missing dependencies
+  2. Automatically installs them with proper PATH configuration
+  3. Updates system PATH (Windows: adds common installation directories)
+  4. Suggests restart on Windows for full PATH refresh
+  5. Re-verifies installation
+  6. Continues setup
+- **Command availability**: Git and Python commands are immediately available after installation
+- **Cross-platform consistency**: Ensures pip is installed on all platforms
+
+#### Windows PATH Management
+- Automatically adds to PATH:
+  - `C:\Program Files\Git\cmd`
+  - `C:\Program Files\Git\bin`
+  - `%LOCALAPPDATA%\Programs\Python\Python312`
+  - `%LOCALAPPDATA%\Programs\Python\Python312\Scripts`
+  - `C:\Python312`
+  - `C:\Python312\Scripts`
+
+#### Windows Requirements
+- Install **winget** (comes with Windows 11 or App Installer from Microsoft Store)
+- Or install **chocolatey** from https://chocolatey.org/install
+- If neither is available, manual installation instructions are shown
+
 ## [0.4.0] - 2025-10-21
 
 ### 🎯 Automatic Dependency Installation
