@@ -4,6 +4,38 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] - 2025-10-21
+
+### 🎯 Automatic Dependency Installation
+
+#### Added
+- **Automatic dependency installation**: The extension now attempts to install missing system dependencies automatically
+- **Interactive installation prompt**: Users are asked for permission before installing dependencies
+- **Platform-specific installation**: 
+  - **macOS**: Uses Homebrew to install git and python3
+  - **Linux**: Uses apt-get, yum, or dnf depending on the distribution
+  - **Windows**: Shows download links for manual installation
+- **Progress notifications**: Visual feedback during dependency installation process
+- **Installation verification**: Re-checks dependencies after installation to confirm success
+
+#### Improved
+- **Better error handling**: Clearer error messages when dependencies cannot be installed
+- **User guidance**: Specific instructions for each platform when automatic installation is not possible
+- **Setup workflow**: Seamless integration of dependency installation into the setup process
+
+#### Fixed
+- **Dependency check failure**: No longer stops setup immediately when dependencies are missing
+- **Manual installation flow**: Better guidance for users who need to install dependencies manually
+
+### 📋 Installation Behavior
+
+When missing dependencies are detected during setup:
+1. Extension shows a notification listing the missing dependencies
+2. User is prompted to install them automatically or cancel
+3. If approved, the extension attempts platform-specific installation
+4. Dependencies are re-verified after installation
+5. Setup continues only if all dependencies are present
+
 ## [0.3.0] - 2025-10-20
 
 ### 🔧 Cross-Platform Compatibility & Code Optimization

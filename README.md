@@ -1,7 +1,7 @@
 # Zazu AI Assistant Extension
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
-![Version](https://img.shields.io/badge/version-0.3.0-green.svg)
+![Version](https://img.shields.io/badge/version-0.4.0-green.svg)
 ![VS Code](https://img.shields.io/badge/VS%20Code-^1.74.0-blue.svg)
 
 A simplified VS Code extension that automates the setup of the **Zazu AI Assistant** project.
@@ -23,6 +23,7 @@ This extension simplifies the setup of the [Zazu AI Assistant](https://github.co
 
 ### 🔧 Automated Setup
 - ✅ **Dependency check** (Python3, pip3, git)
+- ✅ **Automatic dependency installation** (when possible)
 - ✅ **Repository cloning** to workspace
 - ✅ **Python dependency installation**
 - ✅ **JIRA environment configuration**
@@ -32,7 +33,7 @@ This extension simplifies the setup of the [Zazu AI Assistant](https://github.co
 
 ### 1️⃣ Installation
 ```bash
-code --install-extension zazu-ai-assistant-0.3.0.vsix
+code --install-extension zazu-ai-assistant-0.4.0.vsix
 ```
 
 ### 2️⃣ Configuration
@@ -166,8 +167,26 @@ sudo apt-get install git python3 python3-pip
 
 ## 🐛 Troubleshooting
 
+### Automatic Dependency Installation
+
+The extension can automatically install missing dependencies on some platforms:
+
+- **macOS**: Requires [Homebrew](https://brew.sh) to be installed
+- **Linux**: Works with apt-get, yum, or dnf package managers
+- **Windows**: Manual installation required (download links provided)
+
+If automatic installation fails:
+1. The extension will show specific error messages
+2. Follow the provided download links for manual installation
+3. Restart VS Code after manual installation
+4. Run setup again
+
+### Common Issues
+
 - **"Z" missing**: Execute any Zazu command to activate extension
 - **Setup fails**: Check repository URL and JIRA credentials in settings
-- **Dependencies error**: Ensure Git and Python are installed and in PATH
+- **Dependencies error**: Accept the installation prompt or install manually
 - **Python not found**: Try installing Python 3.7+ and restart VS Code
-- **Permission errors**: Run VS Code as administrator (Windows) or check folder permissions
+- **Permission errors**: 
+  - **macOS/Linux**: May need sudo password for package installation
+  - **Windows**: Run VS Code as administrator or install dependencies manually
