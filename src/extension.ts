@@ -45,7 +45,7 @@ async function setupProject(statusManager: StatusManager): Promise<void> {
   const validation = ConfigManager.validateConfig(config);
   if (!validation.valid) {
     vscode.window.showErrorMessage(
-      `Please configure missing settings: ${validation.missing.join(', ')}`
+      `❌ Missing configuration: ${validation.missing.join(', ')}`
     );
     ConfigManager.openSettings();
     return;
@@ -55,10 +55,32 @@ async function setupProject(statusManager: StatusManager): Promise<void> {
     vscode.window.showInformationMessage('🔄 Starting Zazu setup...');
     statusManager.updateStatus('unknown', 'Setup in progress...');
     
-    // 1. Check system dependencies
+    // 1. Check and install system dependencies
     const missingDeps = await SystemUtils.checkSystemDependencies();
     if (missingDeps.length > 0) {
-      throw new Error(`Missing system dependencies: ${missingDeps.join(', ')}`);
+      vscode.window.showInformationMessage(`📦 Installing: ${missingDeps.join(', ')}...`);
+      
+      const result = await SystemUtils.installSystemDependencies(missingDeps);
+      if (!result.success) {
+        throw new Error(result.message);
+      }
+      
+      vscode.window.showInformationMessage(result.message);
+      
+      // Suggest restart on Windows
+      const platform = require('os').platform();
+      if (platform === 'win32') {
+        const choice = await vscode.window.showInformationMessage(
+          'Restart VS Code for PATH changes to take effect?',
+          'Restart Now',
+          'Continue'
+        );
+        
+        if (choice === 'Restart Now') {
+          await vscode.commands.executeCommand('workbench.action.reloadWindow');
+          return;
+        }
+      }
     }
     
     // 2. Clone repository
@@ -83,8 +105,17 @@ async function setupProject(statusManager: StatusManager): Promise<void> {
     
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
+    const detailedError = `❌ Setup failed\n\n${errorMessage}\n\nPlease check the error details above and try again.`;
+    
     statusManager.updateStatus('error', `Setup failed: ${errorMessage}`);
-    vscode.window.showErrorMessage(`Setup failed: ${errorMessage}`);
+    
+    // Show error in modal with more details
+    vscode.window.showErrorMessage(detailedError, { modal: true }, 'Open Settings', 'Close')
+      .then(selection => {
+        if (selection === 'Open Settings') {
+          ConfigManager.openSettings();
+        }
+      });
   }
 }
 

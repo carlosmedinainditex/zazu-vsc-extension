@@ -102,7 +102,6 @@ export class ProjectManager {
       throw new Error('requirements.txt file not found');
     }
 
-    // Try pip3 first, then pip for cross-platform compatibility
     const isWindows = os.platform() === 'win32';
     const pipCommand = isWindows ? 'pip' : 'pip3';
     
@@ -112,23 +111,7 @@ export class ProjectManager {
       { cwd: config.projectPath }
     );
 
-    if (result.success) {
-      vscode.window.showInformationMessage('Python dependencies installed correctly ✅');
-    } else {
-      // Try alternative pip command if first one failed
-      if (!isWindows) {
-        const altResult = await SystemUtils.executeCommand(
-          'pip', 
-          ['install', '-r', requirementsPath], 
-          { cwd: config.projectPath }
-        );
-        
-        if (altResult.success) {
-          vscode.window.showInformationMessage('Python dependencies installed correctly ✅');
-          return;
-        }
-      }
-      
+    if (!result.success) {
       vscode.window.showErrorMessage('Error installing Python dependencies');
       
       // Show output in a new document
@@ -141,6 +124,8 @@ export class ProjectManager {
       
       throw new Error(`Installation failed: ${result.error}`);
     }
+
+    vscode.window.showInformationMessage('Python dependencies installed correctly ✅');
   }
 
   /**
@@ -193,7 +178,6 @@ JIRA_TOKEN=${config.env.jiraToken}
       vscode.window.showInformationMessage('Running Zazu diagnosis...');
     }
 
-    // Use cross-platform Python command
     const isWindows = os.platform() === 'win32';
     const pythonCommand = isWindows ? 'python' : 'python3';
     
@@ -203,45 +187,7 @@ JIRA_TOKEN=${config.env.jiraToken}
       { cwd: config.projectPath }
     );
 
-    if (result.success) {
-      const message = 'Diagnosis completed successfully ✅';
-      if (!silent) {
-        vscode.window.showInformationMessage(message);
-        
-        // Show output in a new document
-        vscode.workspace.openTextDocument({
-          content: result.output,
-          language: 'plaintext'
-        }).then((doc) => {
-          vscode.window.showTextDocument(doc);
-        });
-      }
-      return true;
-    } else {
-      // Try alternative Python command if first one failed
-      if (!isWindows) {
-        const altResult = await SystemUtils.executeCommand(
-          'python', 
-          [diagnosticPath], 
-          { cwd: config.projectPath }
-        );
-        
-        if (altResult.success) {
-          const message = 'Diagnosis completed successfully ✅';
-          if (!silent) {
-            vscode.window.showInformationMessage(message);
-            
-            vscode.workspace.openTextDocument({
-              content: altResult.output,
-              language: 'plaintext'
-            }).then((doc) => {
-              vscode.window.showTextDocument(doc);
-            });
-          }
-          return true;
-        }
-      }
-      
+    if (!result.success) {
       const message = 'Diagnosis failed';
       if (!silent) {
         vscode.window.showErrorMessage(message);
@@ -256,5 +202,19 @@ JIRA_TOKEN=${config.env.jiraToken}
       }
       return false;
     }
+
+    const message = 'Diagnosis completed successfully ✅';
+    if (!silent) {
+      vscode.window.showInformationMessage(message);
+      
+      // Show output in a new document
+      vscode.workspace.openTextDocument({
+        content: result.output,
+        language: 'plaintext'
+      }).then((doc) => {
+        vscode.window.showTextDocument(doc);
+      });
+    }
+    return true;
   }
 }
