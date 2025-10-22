@@ -104,7 +104,7 @@
     "watch": "npm run compile -- --watch",
     "lint": "eslint src --ext ts",
     "package": "npx vsce package",
-    "install-extension": "npm run package && code --install-extension zazu-ai-assistant-0.4.1.vsix"
+    "install-extension": "npm run package && code --install-extension zazu-ai-assistant-0.4.2.vsix"
   },
   "devDependencies": {
     "@types/node": "18.x",
