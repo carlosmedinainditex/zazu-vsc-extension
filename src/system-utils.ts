@@ -85,6 +85,7 @@ export class SystemUtils {
     // This delay allows time for the updated PATH to propagate to child processes and the VS Code environment.
     // On some systems, environment variable changes may not be immediately recognized.
     await new Promise(resolve => setTimeout(resolve, 2000));
+  }
 
   /**
    * Install a specific dependency based on the platform
